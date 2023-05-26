@@ -1,5 +1,3 @@
 class AppConstants {
-  static const iOSVersion = '1.0.4';
+  static const iOSVersion = '1.0.0';
 }
-
-enum ApiStatus { initialize, loading, success, failed }

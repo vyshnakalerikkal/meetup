@@ -78,10 +78,10 @@
 //     notifyListeners();
 //   }
 
-//   void saveUserData(Map<String, dynamic> data) {
-//     final _string = json.encode(data);
-//     StorageService().saveString('user', _string);
-//   }
+  // void saveUserData(Map<String, dynamic> data) {
+  //   final _string = json.encode(data);
+  //   StorageService().saveString('user', _string);
+  // }
 
 //   Future<Map<String, dynamic>?> readSubscribedDate() async {
 //     final _data = await StorageService().readString('user');

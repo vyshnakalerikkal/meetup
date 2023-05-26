@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:testapp/model/userModel.dart';
 import 'package:testapp/provider/provider.dart';
 import 'package:testapp/provider/update_user_data.dart';
 import 'package:testapp/utils/build_context.dart';
@@ -16,25 +17,23 @@ import '../../../theme/colors.dart';
 import '../../../theme/images.dart';
 import '../../../widgets/custom_textfield.dart';
 import '../../utils/helper_functions.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 
-class ProfileScreen extends ConsumerStatefulWidget {
-  const ProfileScreen({Key? key}) : super(key: key);
+class OtherProfileScreen extends ConsumerStatefulWidget {
+  final UserModel userdetails;
+  const OtherProfileScreen({Key? key,required this.userdetails}) : super(key: key);
 
   @override
-  ConsumerState<ProfileScreen> createState() => _SetupProfileScreenState();
+  ConsumerState<OtherProfileScreen> createState() => _OtherProfileScreenState();
 }
 
-class _SetupProfileScreenState extends ConsumerState<ProfileScreen> {
+class _OtherProfileScreenState extends ConsumerState<OtherProfileScreen> {
   final _formKey = GlobalKey<FormState>();
   FlutterSecureStorage secureStorage = const FlutterSecureStorage();
 
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _genderController = TextEditingController();
-  final TextEditingController _dobController = TextEditingController();
   final TextEditingController _aboutMeController = TextEditingController();
   final TextEditingController _locationController = TextEditingController();
-  final TextEditingController _mobileController = TextEditingController();
   String _imgString = '';
 
   File? _imageFile;
@@ -55,29 +54,8 @@ class _SetupProfileScreenState extends ConsumerState<ProfileScreen> {
   }
 
   void _update() async {
-    final _firebaseStorage = FirebaseStorage.instance;
 
-    var downloadUrl = '';
-    if (_imageFile != null) {
-      //Upload to Firebase
-      String fileName = _imageFile!.path.split('/').last;
-
-      var snapshot = await _firebaseStorage
-          .ref()
-          .child('images/$fileName')
-          .putFile(_imageFile!);
-      downloadUrl = await snapshot.ref.getDownloadURL();
-
-      Map<String, String> map = {
-        'image': downloadUrl,
-        'about': _aboutMeController.text,
-        'mobile': _mobileController.text
-      };
-
-      ref.read(updateUserProvider).updateUserData(map);
-    } else {
-      print('No Image Path Received');
-    }
+   
   }
 
   @override
@@ -126,12 +104,22 @@ class _SetupProfileScreenState extends ConsumerState<ProfileScreen> {
                   final res = ref.watch(updateUserProvider);
 
                   return CustomButton.primary(
-                    text: 'Save',
+                    text: 'Purchase',
                     isloading: res.status == UpdateStatus.loading,
                     onTap: _update,
                   );
                 }),
               ),
+              CustomButton.primary(
+                    text: 'Send Rrquest to chat',
+                    // isloading: res.status == UpdateStatus.loading,
+                    onTap: _update,
+                  ),
+                  CustomButton.primary(
+                    text: 'Chat',
+                    // isloading: res.status == UpdateStatus.loading,
+                    onTap: _update,
+                  ),
               _listener(),
             ],
           ),
@@ -214,32 +202,19 @@ class _SetupProfileScreenState extends ConsumerState<ProfileScreen> {
                         ),
                       ),
           ),
-          GestureDetector(
-            onTap: _pickImage,
-            child: CircleAvatar(
-              radius: context.responsive(70),
-              backgroundColor: Colors.black.withOpacity(0.45),
-              child: const Icon(
-                Icons.camera_alt_rounded,
-                color: Colors.white,
-              ),
-            ),
-          ),
+          
         ],
       ),
     );
   }
 
   setValues() {
-    Map<String, dynamic> data = ref.read(userProvider).userData;
-    _nameController.text = data['name'].toString();
-    _genderController.text = data['gender'].toString();
-    _dobController.text = data['dob'].toString();
-    _locationController.text = data['location'].toString();
-    _mobileController.text = data['mobile'].toString();
-    if (data['image'] != '') {
-      _imgString = data['image'].toString();
-    }
+    _nameController.text = widget.userdetails.name??'';
+    _genderController.text = widget.userdetails.gender??'';
+    
+    _locationController.text = widget.userdetails.location??'';
+     _aboutMeController.text = widget.userdetails.about??'';
+   
   }
 
   Widget _fieldLabel(String text, TextTheme textStyle) {
@@ -255,7 +230,7 @@ class _SetupProfileScreenState extends ConsumerState<ProfileScreen> {
   Widget _listener() {
     ref.listen<UpdateUserProvider>(updateUserProvider, (previous, next) {
       if (next.status == UpdateStatus.success) {
-        ref.read(userProvider).getUserData(_mobileController.text);
+
       } else if ((next.status == UpdateStatus.error)) {
         AppMessenger.of(context).error(next.message);
       }
@@ -289,26 +264,7 @@ class _SetupProfileScreenState extends ConsumerState<ProfileScreen> {
             enabled: false,
           ),
           SizedBox(height: context.responsive(25)),
-          _fieldLabel('Date of birth', textStyle),
-          CustomTextfield(
-            hintText: 'Date of birth',
-            controller: _dobController,
-            keyboardType: TextInputType.name,
-            validator: requiredValidator(),
-            onChanged: (value) {},
-            enabled: false,
-          ),
-          SizedBox(height: context.responsive(25)),
-          _fieldLabel('Mobile number', textStyle),
-          CustomTextfield(
-            hintText: 'Mobile number',
-            controller: _mobileController,
-            keyboardType: TextInputType.name,
-            validator: requiredValidator(),
-            onChanged: (value) {},
-            enabled: false,
-          ),
-          SizedBox(height: context.responsive(25)),
+          
           _fieldLabel('Location', textStyle),
           CustomTextfield(
             hintText: 'location',
@@ -326,6 +282,7 @@ class _SetupProfileScreenState extends ConsumerState<ProfileScreen> {
             keyboardType: TextInputType.multiline,
             minLine: 2,
             maxLines: 5,
+            enabled: false,
             onChanged: (value) {},
           ),
           SizedBox(height: context.responsive(25)),

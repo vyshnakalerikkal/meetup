@@ -1,41 +1,27 @@
-// import 'package:evotaps_flutter/screens/contact/contact_screen.dart';
-// import 'package:evotaps_flutter/screens/forgot_password/forgot_password_screen.dart';
-// import 'package:evotaps_flutter/screens/privacy_policy/privacy_policy_screen.dart';
-// import 'package:evotaps_flutter/screens/reset_password/reset_password_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:testapp/main.dart';
+import 'package:testapp/model/userModel.dart';
 import 'package:testapp/screens/dashboard/bottom_navigation.dart';
 import 'package:testapp/screens/home/home_screen.dart';
 import 'package:testapp/screens/login/login_screen.dart';
 import 'package:testapp/screens/onboard/onboard_screen.dart';
+import 'package:testapp/screens/others_profile/others_profile_screen.dart';
 import 'package:testapp/screens/otp/verifiy_otp_screen.dart';
 import 'package:testapp/screens/profile/profile_screen.dart';
 import 'package:testapp/screens/signup/signup_screen.dart';
 import 'package:testapp/screens/splash/splash_screen.dart';
 
-// import '../main.dart';
-// import '../screens/login/login_screen.dart';
-// import '../screens/manage_card/manage_card_screen.dart';
-// import '../screens/onboard/onboard_screen.dart';
-// import '../screens/profile/profile_screen.dart';
-// import '../screens/setup_profile/setup_profile_screen.dart';
-// import '../screens/signup/signup_screen.dart';
-// import '../screens/splash/splash_screen.dart';
-// import '../screens/verify_otp/verifiy_otp_screen.dart';
-
 class AppRoutes {
   static const init = '/';
   static const splash = '/splash';
   static const onboard = '/onboard';
- static const login = '/login';
-   static const otp = '/otp';
+  static const login = '/login';
+  static const otp = '/otp';
   static const signup = '/signup';
-   static const profile = '/profile';
+  static const profile = '/profile';
   static const dashboard = '/dashboard';
   static const home = '/home';
-
-//   static const forgotPassword = '/forgot_password';
-//   static const resetPassword = '/reset_password';
+  static const othersProfile = '/othersProfile';
 }
 
 Route<dynamic>? generateRoute(RouteSettings settings) {
@@ -52,12 +38,7 @@ Route<dynamic>? generateRoute(RouteSettings settings) {
       return MaterialPageRoute(builder: (context) => const OnboardScreen());
 
     case AppRoutes.home:
-      return MaterialPageRoute(builder: (context) =>  HomeScreen());
-
-//     case AppRoutes.setupProfile:
-//       return MaterialPageRoute(
-//         builder: (context) => const SetupProfileScreen(),
-//       );
+      return MaterialPageRoute(builder: (context) => const HomeScreen());
 
     case AppRoutes.profile:
       return MaterialPageRoute(
@@ -72,7 +53,7 @@ Route<dynamic>? generateRoute(RouteSettings settings) {
 
     case AppRoutes.otp:
       return MaterialPageRoute(
-        builder: (context) => VerifiyOtpScreen(
+        builder: (context) => VerifyOtpScreen(
           mobileNumber: settings.arguments as String,
         ),
       );
@@ -80,7 +61,12 @@ Route<dynamic>? generateRoute(RouteSettings settings) {
     case AppRoutes.dashboard:
       return MaterialPageRoute(builder: (context) => const MyNavigationBar());
 
-
+    case AppRoutes.othersProfile:
+      return MaterialPageRoute(
+        builder: (context) => OtherProfileScreen(
+          userdetails: settings.arguments as UserModel,
+        ),
+      );
 
     default:
       return MaterialPageRoute(

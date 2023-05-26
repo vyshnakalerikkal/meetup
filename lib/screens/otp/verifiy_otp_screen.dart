@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:testapp/config/routes.dart';
+import 'package:testapp/provider/get_user_data.dart';
 import 'package:testapp/utils/build_context.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -13,16 +14,16 @@ import '../../../widgets/custom_snackbar.dart';
 import '../../../provider/auth.dart';
 import '../../../provider/provider.dart';
 
-class VerifiyOtpScreen extends ConsumerStatefulWidget {
-  const VerifiyOtpScreen({Key? key, required this.mobileNumber})
+class VerifyOtpScreen extends ConsumerStatefulWidget {
+  const VerifyOtpScreen({Key? key, required this.mobileNumber})
       : super(key: key);
   final String mobileNumber;
 
   @override
-  ConsumerState<VerifiyOtpScreen> createState() => _VerifiyOtpScreenState();
+  ConsumerState<VerifyOtpScreen> createState() => _VerifiyOtpScreenState();
 }
 
-class _VerifiyOtpScreenState extends ConsumerState<VerifiyOtpScreen> {
+class _VerifiyOtpScreenState extends ConsumerState<VerifyOtpScreen> {
   final TextEditingController _otpController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   final bool _isIOS = Platform.isIOS;
@@ -61,7 +62,7 @@ class _VerifiyOtpScreenState extends ConsumerState<VerifiyOtpScreen> {
                   child: PinCodeTextField(
                     appContext: context,
                     controller: _otpController,
-                    length: 4,
+                    length: 6,
                     animationType: AnimationType.fade,
                     textStyle: textStyle.titleLarge!.copyWith(
                       fontSize: 20,
@@ -73,7 +74,7 @@ class _VerifiyOtpScreenState extends ConsumerState<VerifiyOtpScreen> {
                       activeColor: const Color(0xFFEAEAEA),
                       inactiveColor: const Color(0xFFEAEAEA),
                       selectedColor: const Color(0xFFFFA800),
-                      fieldWidth: (MediaQuery.of(context).size.width / 4) - 20,
+                      fieldWidth: (MediaQuery.of(context).size.width / 6) - 20,
                     ),
                     enablePinAutofill: true,
                     showCursor: false,
@@ -87,15 +88,20 @@ class _VerifiyOtpScreenState extends ConsumerState<VerifiyOtpScreen> {
                   ),
                 ),
               ),
-              CustomButton.secondary(
-                text: 'Verify OTP',
-                onTap: _verifyOtp,
-                isloading: true,
-                color: AppColors.primary,
-                fontColor: AppColors.white,
-                hPadding: 24,
-              ),
+              Consumer(builder: (_, ref, __) {
+                final res = ref.watch(authProvider);
+
+                return CustomButton.secondary(
+                  text: 'Verify OTP',
+                  onTap: _verifyOtp,
+                  isloading: res.phoneStatus == PhoneState.loading,
+                  color: AppColors.primary,
+                  fontColor: AppColors.white,
+                  hPadding: 24,
+                );
+              }),
               _listener(),
+              _userlistener(),
             ],
           ),
         ),
@@ -139,7 +145,7 @@ class _VerifiyOtpScreenState extends ConsumerState<VerifiyOtpScreen> {
         child: RichText(
           text: TextSpan(
             text:
-                'Enter 4 Digit verification code that we\nsent to your mobile number ',
+                'Enter 6 Digit verification code that we\nsent to your mobile number ',
             style: textStyle.bodyMedium!.copyWith(
               fontSize: 15,
               color: AppColors.white.withOpacity(0.6),
@@ -159,11 +165,24 @@ class _VerifiyOtpScreenState extends ConsumerState<VerifiyOtpScreen> {
 
   Widget _listener() {
     ref.listen<PhoneAuth>(authProvider, (previous, next) {
-      if (next.otpState == OtpState.success) {
-        Navigator.popUntil(context, ModalRoute.withName(AppRoutes.init));
+      if (next.phoneStatus == PhoneState.success) {
+        ref.read(userProvider).getUserData(widget.mobileNumber);
       }
-      if (next.otpState == OtpState.error) {
+      if (next.phoneStatus == PhoneState.error) {
         AppMessenger.of(context).error(next.errorMessage ?? '');
+      }
+    });
+    return const SizedBox.shrink();
+  }
+
+  Widget _userlistener() {
+    ref.listen<UserProvider>(userProvider, (previous, next) {
+      if (next.status == UserStatus.success) {
+        Navigator.pushNamedAndRemoveUntil(
+            context, AppRoutes.dashboard, (route) => false);
+      }
+      if (next.status == UserStatus.error) {
+        AppMessenger.of(context).error(next.message);
       }
     });
     return const SizedBox.shrink();
@@ -171,7 +190,7 @@ class _VerifiyOtpScreenState extends ConsumerState<VerifiyOtpScreen> {
 
   void _verifyOtp() {
     if (_formKey.currentState!.validate()) {
-      if (_otpController.text.length < 4) {
+      if (_otpController.text.length < 6) {
         AppMessenger.of(context)
             .info('Please enter a valid OTP Code to continue!');
       } else {

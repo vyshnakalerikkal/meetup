@@ -5,8 +5,6 @@ import 'package:flutter_image_compress/flutter_image_compress.dart';
 
 import '../theme/colors.dart';
 
-
-
 BoxDecoration bgDecoration() {
   return const BoxDecoration(
     gradient: LinearGradient(
@@ -20,16 +18,9 @@ BoxDecoration bgDecoration() {
   );
 }
 
-
-
-
-
-
 Future<File?> compressFile(File file) async {
   final filePath = file.absolute.path;
 
-  // Create output file path
-  // eg:- "Volume/VM/abcd_out.jpeg"
   final lastIndex = filePath.lastIndexOf('.');
   final splitted = filePath.substring(0, lastIndex);
   final outPath = '${splitted}_out${filePath.substring(lastIndex)}';

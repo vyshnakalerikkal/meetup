@@ -6,22 +6,22 @@
 // class CrewListProvider extends ChangeNotifier {
 //   List<CrewModel> crews = [];
 //   FilterParam? _filter;
-//   Status status = Status.initilize;
-//   String message = '';
+  // Status status = Status.initilize;
+  // String message = '';
 
-//   Future<void> getCrews(FilterParam filter) async {
-//     if (filter == _filter || status == Status.busy) return;
+  // Future<void> getCrews(FilterParam filter) async {
+  //   if (filter == _filter || status == Status.busy) return;
 
-//     try {
-//       changeStatus(Status.busy);
-//       crews = await FirbaseApi().getCrewList(filter);
-//       _filter = filter;
-//       changeStatus(Status.success);
-//     } catch (e) {
-//       message = e.toString();
-//       changeStatus(Status.failed);
-//     }
-//   }
+  //   try {
+  //     changeStatus(Status.busy);
+  //     crews = await FirbaseApi().getCrewList(filter);
+  //     _filter = filter;
+  //     changeStatus(Status.success);
+  //   } catch (e) {
+  //     message = e.toString();
+  //     changeStatus(Status.failed);
+  //   }
+  // }
 
 //   Future<void> getMore() async {
 //     if (status == Status.busy) return;

@@ -1,6 +1,4 @@
 import 'dart:io';
-
-import 'package:testapp/config/constants.dart';
 import 'package:testapp/config/routes.dart';
 import 'package:testapp/theme/colors.dart';
 import 'package:testapp/utils/build_context.dart';
@@ -8,15 +6,11 @@ import 'package:testapp/utils/country_codes.dart';
 import 'package:testapp/widgets/custom_button.dart';
 import 'package:testapp/widgets/custom_mobile_input.dart';
 import 'package:testapp/widgets/custom_snackbar.dart';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:form_field_validator/form_field_validator.dart';
-
 import '../../../theme/images.dart';
 import '../../../utils/helper_functions.dart';
-
 import '../../utils/validators.dart';
 import '../../widgets/common_widgets.dart';
 import '../../../provider/auth.dart';
@@ -59,15 +53,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   }
 
   void sendOtp() {
-   
-      ref.read(authProvider).login(
-          _selectedCountry['tele_code']! + _mobileController.text.trim());
-    
-  }
-
-  @override
-  void initState() {
-    super.initState();
+    ref.read(authProvider).login(
+        '+' + _selectedCountry['tele_code']! + _mobileController.text.trim());
   }
 
   @override
@@ -170,12 +157,16 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   ),
                 ),
               ),
-              CustomButton.outlined(
-                text: 'Create an account',
-                onTap: _signup,
-                color: AppColors.white,
-                hPadding: 24,
-              ),
+              Consumer(builder: (_, ref, __) {
+                final res = ref.watch(authProvider);
+                return CustomButton.outlined(
+                  text: 'Create an account',
+                  onTap: _signup,
+                  color: AppColors.white,
+                  isloading: res.otpState == OtpState.loading,
+                  hPadding: 24,
+                );
+              }),
               const SizedBox(height: 20),
               _listener()
             ],
@@ -187,10 +178,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
   Widget _listener() {
     ref.listen<PhoneAuth>(authProvider, (previous, next) {
-      if (next.otpState == PhoneState.sendSuccess) {
-        Navigator.of(context).pushNamed(AppRoutes.otp,arguments: _selectedCountry['tele_code']! + _mobileController.text.trim());
-      }
-      if (next.otpState == PhoneState.sendFailed) {
+      if (next.otpState == OtpState.success) {
+        Navigator.of(context).pushNamed(AppRoutes.otp,
+            arguments:
+                _selectedCountry['tele_code']! + _mobileController.text.trim());
+      } else if ((next.otpState == OtpState.error) ||
+          (next.otpState == OtpState.timeout)) {
         AppMessenger.of(context).error(next.errorMessage ?? '');
       }
     });

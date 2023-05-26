@@ -1,6 +1,4 @@
 import 'dart:io';
-
-import 'package:testapp/config/routes.dart';
 import 'package:testapp/services/firebase_api.dart';
 import 'package:testapp/theme/colors.dart';
 import 'package:testapp/utils/build_context.dart';
@@ -58,11 +56,12 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
         'dob': _dobController.text,
         'gender': _gender,
         'location': _locationController.text,
-        'mobile': _mobileController.text
+        'mobile': _selectedCountry['tele_code']! + _mobileController.text,
+        'about': '',
+        'image': '',
       };
       FirbaseApi().createUser(data);
       Navigator.of(context).pop();
-  
     }
   }
 
@@ -80,11 +79,6 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
         _dobController.text = formattedDate;
       });
     }
-  }
-
-  @override
-  void initState() {
-    super.initState();
   }
 
   @override
@@ -171,12 +165,12 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                       ),
                       _formFieldGap(),
                       CustomTextfield(
-                          labelText: 'D O B',
+                          labelText: 'Date of birth',
                           isWhite: true,
                           autoFocus: false,
                           controller: _dobController,
                           validator: requiredValidator(),
-                          enabled: false,
+                          enabled: true,
                           suffix: const Icon(
                             Icons.calendar_today,
                             color: AppColors.white,

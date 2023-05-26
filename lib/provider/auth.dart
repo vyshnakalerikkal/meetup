@@ -17,19 +17,19 @@ class PhoneAuth extends ChangeNotifier {
   Future<void> login(String phoneNumber) async {
     _phoneNumber = phoneNumber;
     _errorMessage = '';
-    phoneStatus = PhoneState.loading;
+
     sendOTP();
     notifyListeners();
   }
 
   Future<void> sendOTP() async {
     try {
+      _changeOtpState(OtpState.loading);
       await auth.verifyPhoneNumber(
         phoneNumber: _phoneNumber,
         timeout: const Duration(minutes: 2),
         verificationCompleted: (PhoneAuthCredential credential) async {
-          UserCredential _user = await auth.signInWithCredential(credential);
-         _changeOtpState(OtpState.success);
+          _changeOtpState(OtpState.success);
         },
         verificationFailed: (FirebaseAuthException e) {
           _errorMessage = e.message;
@@ -37,7 +37,7 @@ class PhoneAuth extends ChangeNotifier {
         },
         codeSent: (String verficationID, int? resendToken) {
           _verificationId = verficationID;
-          _changePhoneState(PhoneState.sendSuccess);
+          _changeOtpState(OtpState.success);
         },
         codeAutoRetrievalTimeout: (String verificationID) {
           _verificationId = verificationID;
@@ -47,39 +47,29 @@ class PhoneAuth extends ChangeNotifier {
       );
     } catch (e) {
       _errorMessage = e.toString();
-      _changePhoneState(PhoneState.sendFailed);
+      _changeOtpState(OtpState.error);
     }
   }
 
   loginWithOtp(String otp) async {
-    _changeOtpState(OtpState.loading);
+    _changePhoneState(PhoneState.loading);
 
     try {
-      UserCredential _user = await auth.signInWithCredential(
+      await auth.signInWithCredential(
         PhoneAuthProvider.credential(
           verificationId: _verificationId,
           smsCode: otp,
         ),
       );
-      _changeOtpState(OtpState.success);
-    
+      _changePhoneState(PhoneState.success);
     } catch (e) {
       _errorMessage = e.toString();
       if (_errorMessage?.contains('invalid-verification-code') ?? false) {
-        _errorMessage = 'Invalid opt';
+        _errorMessage = 'Invalid otp';
       }
-      _changeOtpState(OtpState.error);
+      _changePhoneState(PhoneState.error);
     }
   }
-
-  // Future<void> getUserData(UserCredential user) async {
-  //   // if the user logins for first time
-  //   // save the user phone and uui to firestore
-  //   if (user.additionalUserInfo!.isNewUser) {
-  //     await FirbaseApi().createUser();
-  //   }
-  //   _changeOtpState(OtpState.success);
-  // }
 
   Future<void> logOut() async {
     await auth.signOut();
@@ -96,5 +86,6 @@ class PhoneAuth extends ChangeNotifier {
   }
 }
 
-enum PhoneState { initilize, sendSuccess, sendFailed, loading }
+enum PhoneState { initilize, sendSuccess, sendFailed, loading, success, error }
+
 enum OtpState { initilize, loading, timeout, error, success }
