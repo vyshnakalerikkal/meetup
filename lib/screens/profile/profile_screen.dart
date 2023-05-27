@@ -237,9 +237,16 @@ class _SetupProfileScreenState extends ConsumerState<ProfileScreen> {
     _dobController.text = data['dob'].toString();
     _locationController.text = data['location'].toString();
     _mobileController.text = data['mobile'].toString();
-    if (data['image'] != '') {
-      _imgString = data['image'].toString();
-    }
+    try {
+      if (data['image'] != '') {
+        _imgString = data['image'].toString();
+      }
+      if (data['about'] != null) {
+        if (data['about'] != '') {
+          _aboutMeController.text = data['about'].toString();
+        }
+      }
+    } catch (exception) {}
   }
 
   Widget _fieldLabel(String text, TextTheme textStyle) {
@@ -256,6 +263,7 @@ class _SetupProfileScreenState extends ConsumerState<ProfileScreen> {
     ref.listen<UpdateUserProvider>(updateUserProvider, (previous, next) {
       if (next.status == UpdateStatus.success) {
         ref.read(userProvider).getUserData(_mobileController.text);
+        AppMessenger.of(context).success('profile Updated successfully');
       } else if ((next.status == UpdateStatus.error)) {
         AppMessenger.of(context).error(next.message);
       }

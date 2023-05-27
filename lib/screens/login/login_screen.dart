@@ -134,14 +134,17 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   ),
                 ),
               ),
-              CustomButton.secondary(
-                text: 'Login',
-                onTap: _login,
-                isloading: false,
-                color: AppColors.primary,
-                fontColor: AppColors.white,
-                hPadding: 24,
-              ),
+              Consumer(builder: (_, ref, __) {
+                final res = ref.watch(authProvider);
+                return CustomButton.secondary(
+                  text: 'Login',
+                  onTap: _login,
+                  isloading: res.otpState == OtpState.loading,
+                  color: AppColors.primary,
+                  fontColor: AppColors.white,
+                  hPadding: 24,
+                );
+              }),
               Center(
                 child: Padding(
                   padding: EdgeInsets.only(
@@ -157,16 +160,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   ),
                 ),
               ),
-              Consumer(builder: (_, ref, __) {
-                final res = ref.watch(authProvider);
-                return CustomButton.outlined(
-                  text: 'Create an account',
-                  onTap: _signup,
-                  color: AppColors.white,
-                  isloading: res.otpState == OtpState.loading,
-                  hPadding: 24,
-                );
-              }),
+              CustomButton.outlined(
+                text: 'Create an account',
+                onTap: _signup,
+                color: AppColors.white,
+                hPadding: 24,
+              ),
               const SizedBox(height: 20),
               _listener()
             ],

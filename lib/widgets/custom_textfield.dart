@@ -31,7 +31,7 @@ class CustomTextfield extends StatelessWidget {
     this.minLine = 1,
     this.initialValue,
     this.isWhite = false,
-    this.enabled=true,
+    this.enabled = true,
   }) : super(key: key);
   final TextEditingController? controller;
   final double vPadding;
@@ -75,9 +75,7 @@ class CustomTextfield extends StatelessWidget {
           color: isWhite ? AppColors.white : AppColors.formFieldText,
           fontWeight: FontWeight.w500,
         );
-    // final borderColor = isWhite
-    //     ? AppColors.formFieldUnderlineTwo
-    //     : AppColors.formFieldUnderline;
+
     final cursorColor =
         isWhite ? AppColors.formFieldUnderlineTwo : AppColors.primary;
 
@@ -103,7 +101,7 @@ class CustomTextfield extends StatelessWidget {
         minLines: minLine,
         initialValue: initialValue,
         textCapitalization: TextCapitalization.sentences,
-        enabled:enabled ,
+        enabled: enabled,
         decoration: InputDecoration(
           contentPadding: const EdgeInsets.symmetric(vertical: 14),
           border: textFieldBorder,

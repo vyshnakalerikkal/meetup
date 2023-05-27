@@ -1,5 +1,7 @@
+import 'dart:async';
 import 'dart:io';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 
@@ -31,4 +33,16 @@ Future<File?> compressFile(File file) async {
   );
 
   return result;
+}
+
+DateTime? toDateTime(Timestamp? value) {
+  if (value == null) return null;
+
+  return value.toDate();
+}
+
+dynamic fromDateTimeToJson(DateTime? date) {
+  if (date == null) return null;
+
+  return date.toUtc();
 }

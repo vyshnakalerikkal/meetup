@@ -1,5 +1,7 @@
 import 'dart:io';
-import 'package:testapp/services/firebase_api.dart';
+import 'package:testapp/config/routes.dart';
+import 'package:testapp/provider/provider.dart';
+import 'package:testapp/provider/signup.dart';
 import 'package:testapp/theme/colors.dart';
 import 'package:testapp/utils/build_context.dart';
 import 'package:testapp/utils/country_codes.dart';
@@ -9,6 +11,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:form_field_validator/form_field_validator.dart';
+import 'package:testapp/widgets/custom_snackbar.dart';
 import '../../../utils/helper_functions.dart';
 import '../../../widgets/custom_button.dart';
 import '../../../widgets/custom_textfield.dart';
@@ -60,17 +63,48 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
         'about': '',
         'image': '',
       };
-      FirbaseApi().createUser(data);
-      Navigator.of(context).pop();
+      ref.read(signupProvider).signup(data);
     }
+  }
+
+  Widget _listener() {
+    ref.listen<SignupProvider>(signupProvider, (previous, next) {
+      if (next.status == Status.success) {
+        AppMessenger.of(context).success('Signup successful');
+        Future.delayed(const Duration(milliseconds: 2000)).then((value) =>
+            Navigator.pushNamedAndRemoveUntil(
+                context, AppRoutes.login, (route) => false));
+      } else if ((next.status == Status.error)) {
+        AppMessenger.of(context).error(next.message);
+      }
+    });
+    return const SizedBox.shrink();
   }
 
   _selectDate() async {
     DateTime? pickedDate = await showDatePicker(
-        context: context,
-        initialDate: DateTime(2012),
-        firstDate: DateTime(1975),
-        lastDate: DateTime(2012));
+      context: context,
+      initialDate: DateTime(2012),
+      firstDate: DateTime(1975),
+      lastDate: DateTime(2012),
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: const ColorScheme.light(
+              primary: AppColors.primary,
+              onPrimary: Colors.white,
+              onSurface: Colors.black,
+            ),
+            textButtonTheme: TextButtonThemeData(
+              style: TextButton.styleFrom(
+                foregroundColor: AppColors.primary,
+              ),
+            ),
+          ),
+          child: child!,
+        );
+      },
+    );
 
     if (pickedDate != null) {
       String formattedDate = DateFormat('dd-MM-yyyy').format(pickedDate);
@@ -194,15 +228,20 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                   ),
                 ),
               ),
-              CustomButton.secondary(
-                text: 'Create account',
-                onTap: _signup,
-                isloading: false,
-                color: AppColors.primary,
-                fontColor: AppColors.white,
-                hPadding: 24,
-              ),
+              Consumer(builder: (_, ref, __) {
+                final res = ref.watch(signupProvider);
+
+                return CustomButton.secondary(
+                  text: 'Create account',
+                  onTap: _signup,
+                  isloading: res.status == Status.loading,
+                  color: AppColors.primary,
+                  fontColor: AppColors.white,
+                  hPadding: 24,
+                );
+              }),
               SizedBox(height: context.responsive(123)),
+              _listener()
             ],
           ),
         ),

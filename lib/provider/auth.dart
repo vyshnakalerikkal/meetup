@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
+import 'package:testapp/services/secure_storage.dart';
 
 class PhoneAuth extends ChangeNotifier {
   final FirebaseAuth auth = FirebaseAuth.instance;
@@ -72,6 +73,7 @@ class PhoneAuth extends ChangeNotifier {
   }
 
   Future<void> logOut() async {
+    await StorageService().deleteString('user');
     await auth.signOut();
   }
 

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:testapp/main.dart';
 import 'package:testapp/model/userModel.dart';
+import 'package:testapp/screens/chat/chat.dart';
 import 'package:testapp/screens/dashboard/bottom_navigation.dart';
 import 'package:testapp/screens/home/home_screen.dart';
 import 'package:testapp/screens/login/login_screen.dart';
@@ -22,6 +23,7 @@ class AppRoutes {
   static const dashboard = '/dashboard';
   static const home = '/home';
   static const othersProfile = '/othersProfile';
+  static const chat = '/chat';
 }
 
 Route<dynamic>? generateRoute(RouteSettings settings) {
@@ -65,6 +67,13 @@ Route<dynamic>? generateRoute(RouteSettings settings) {
       return MaterialPageRoute(
         builder: (context) => OtherProfileScreen(
           userdetails: settings.arguments as UserModel,
+        ),
+      );
+
+    case AppRoutes.chat:
+      return MaterialPageRoute(
+        builder: (context) => ChatPage(
+          user: settings.arguments as UserModel,
         ),
       );
 

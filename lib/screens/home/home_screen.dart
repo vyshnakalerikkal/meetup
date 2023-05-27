@@ -67,9 +67,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     ),
                     itemCount: data.usermodel.length,
                     itemBuilder: (BuildContext context, int index) {
-                      return GestureDetector (
+                      return GestureDetector(
                         onTap: () {
-                          Navigator.pushNamed(context, AppRoutes .othersProfile,arguments: data.usermodel[index]);
+                          Navigator.pushNamed(context, AppRoutes.othersProfile,
+                              arguments: data.usermodel[index]);
                         },
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.center,
@@ -81,15 +82,20 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                 shape: BoxShape.circle,
                                 color: data.usermodel[index].image == null
                                     ? AppColors.lightGray
-                                    : Colors.transparent,
+                                    : data.usermodel[index].purchaseStatus == 1
+                                        ? Colors.transparent
+                                        : AppColors.lightGray,
                               ),
                               clipBehavior: Clip.hardEdge,
                               child: data.usermodel[index].image == null
                                   ? SvgPicture.asset(AppImages.avatar)
-                                  : CachedNetworkImage(
-                                      imageUrl: data.usermodel[index].image ?? '',
-                                      fit: BoxFit.cover,
-                                    ),
+                                  : data.usermodel[index].purchaseStatus == 1
+                                      ? CachedNetworkImage(
+                                          imageUrl:
+                                              data.usermodel[index].image ?? '',
+                                          fit: BoxFit.cover,
+                                        )
+                                      : SvgPicture.asset(AppImages.avatar),
                             ),
                             const SizedBox(
                               height: 2,
